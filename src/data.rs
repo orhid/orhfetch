@@ -1,5 +1,7 @@
-use std::fmt::Write;
+use core::fmt::Write;
 use systemstat::Platform;
+
+/* # constants */
 
 const COLOUR: &str = "\x1b[36m";
 const RESET: &str = "\x1b[0m";
@@ -12,25 +14,24 @@ fn format_data(key: &str, value: &str) -> String {
     format!(" {COLOUR}{key}{RESET} {value}")
 }
 
-fn format_uptime(time: std::time::Duration) -> StringResult {
+fn format_uptime(time: core::time::Duration) -> StringResult {
     let uptime_seconds = time.as_secs();
+    let mut display = String::new();
 
     let uptime_days = uptime_seconds / (24 * 60 * 60);
-    let uptime_hours = (uptime_seconds % 24 * 60 * 60) / (60 * 60);
-    let uptime_minutes = (uptime_seconds % (60 * 60)) / 60;
-
-    let mut display = String::new();
     if uptime_days > 0 {
         write!(display, "{uptime_days}d ")?;
     }
+    let uptime_hours = (uptime_seconds % 24 * 60 * 60) / (60 * 60);
     if uptime_hours > 0 {
         write!(display, "{uptime_hours}h ")?;
     }
+    let uptime_minutes = (uptime_seconds % (60 * 60)) / 60;
     if uptime_minutes > 0 {
         write!(display, "{uptime_minutes}m")?;
     }
 
-    Ok(format_data("", &display))
+    Ok(format_data("\u{f64f}", &display))
 }
 
 /* # retrieving information */
@@ -44,10 +45,10 @@ pub fn get_hostname() -> StringResult {
         host = match std::env::var("HOSTNAME") {
             Ok(name) => name,
             Err(_) =>
-                match std::str::from_utf8(&std::process::Command::new("hostname").output()?.stdout)
+                match core::str::from_utf8(&std::process::Command::new("hostname").output()?.stdout)
                 {
-                    Ok(name) => name.to_string().replace('\n', ""),
-                    Err(_) => nix::sys::utsname::uname().nodename().to_string(),
+                    Ok(name) => name.to_owned().replace('\n', ""),
+                    Err(_) => nix::sys::utsname::uname().nodename().to_owned(),
                 },
         },
     ))
@@ -58,14 +59,14 @@ pub fn get_hostname() -> StringResult {
 fn read_mac_release() -> StringResult {
     Ok(format!(
         "{} {}",
-        std::str::from_utf8(
+        core::str::from_utf8(
             &std::process::Command::new("sw_vers")
                 .arg("-productName")
                 .output()?
                 .stdout,
         )?
         .replace('\n', ""),
-        match std::str::from_utf8(
+        match core::str::from_utf8(
             &std::process::Command::new("sw_vers")
                 .arg("-productVersion")
                 .output()?
@@ -83,13 +84,13 @@ fn read_mac_release() -> StringResult {
 }
 
 fn read_lsb_release() -> StringResult {
-    Ok(std::str::from_utf8(
+    Ok(core::str::from_utf8(
         &std::process::Command::new("lsb_release")
             .arg("-sd")
             .output()?
             .stdout,
     )?
-    .to_string())
+    .to_owned())
 }
 
 fn read_os_release() -> StringResult {
@@ -104,9 +105,9 @@ fn read_os_release() -> StringResult {
 
 pub fn get_os() -> StringResult {
     match nix::sys::utsname::uname().sysname() {
-        "Darwin" => Ok(format_data("", &read_mac_release()?)),
+        "Darwin" => Ok(format_data("\u{e711}", &read_mac_release()?)),
         "Linux" => Ok(format_data(
-            "",
+            "\u{e712}",
             &read_lsb_release().or_else(|_| read_os_release())?,
         )),
         _ => simple_error::bail!("unrecognised os"),
@@ -117,7 +118,7 @@ pub fn get_os() -> StringResult {
 
 pub fn get_shell() -> StringResult {
     Ok(format_data(
-        "",
+        "\u{f489}",
         std::env::var("SHELL")?
             .strip_prefix("/bin/")
             .ok_or_else(|| simple_error::simple_error!("unrecognised linux distro"))?,
@@ -134,14 +135,14 @@ pub fn get_uptime() -> StringResult {
 
 pub fn get_colours() -> (String, String) {
     (
-        (30..38)
-            .map(|i| format!("\x1b[{i}m⬣"))
+        (30_i32..38_i32)
+            .map(|i| format!("\x1b[{i}m\u{2b23}"))
             .collect::<Vec<String>>()
             .join(" "),
         format!(
             " {}",
-            (90..98)
-                .map(|i| format!("\x1b[{i}m⬣"))
+            (90_i32..98_i32)
+                .map(|i| format!("\x1b[{i}m\u{2b23}"))
                 .collect::<Vec<String>>()
                 .join(" ")
         ),
