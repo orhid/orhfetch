@@ -9,7 +9,7 @@ type StringResult = Result<String, Box<dyn std::error::Error>>;
 /* # pretty formatting */
 
 fn format_data(key: &str, value: &str) -> String {
-    format!(" {COLOUR}{key}{RESET} {value}", key = key, value = value)
+    format!(" {COLOUR}{key}{RESET} {value}")
 }
 
 fn format_uptime(time: std::time::Duration) -> StringResult {
@@ -21,13 +21,13 @@ fn format_uptime(time: std::time::Duration) -> StringResult {
 
     let mut display = String::new();
     if uptime_days > 0 {
-        write!(display, "{}d ", uptime_days)?;
+        write!(display, "{uptime_days}d ")?;
     }
     if uptime_hours > 0 {
-        write!(display, "{}h ", uptime_hours)?;
+        write!(display, "{uptime_hours}h ")?;
     }
     if uptime_minutes > 0 {
-        write!(display, "{}m", uptime_minutes)?;
+        write!(display, "{uptime_minutes}m")?;
     }
 
     Ok(format_data("", &display))
