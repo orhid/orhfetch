@@ -7,34 +7,7 @@ const RESET: &str = "\x1b[0m";
 type StringRes = Result<String, Box<dyn std::error::Error>>;
 
 fn format_data(key: &str, value: &str) -> String {
-    format!("{COLOUR}{key}{RESET} {value}", key = key, value = value,)
-}
-
-fn get_ascii_art() -> Vec<String> {
-    let bytes = [
-        "20", "20", "20", "20", "20", "20", "20", "20", "5f", "20", "20", "20", "20", "20", "20",
-        "20", "20", "20", "0a", "20", "20", "20", "20", "5f", "20", "28", "60", "2d", "60", "29",
-        "20", "5f", "20", "20", "20", "20", "20", "0a", "20", "20", "2f", "60", "20", "27", "2e",
-        "5c", "20", "2f", "2e", "27", "20", "60", "5c", "20", "20", "20", "0a", "20", "20", "60",
-        "60", "27", "2d", "2e", "2c", "3d", "2c", "2e", "2d", "27", "60", "60", "20", "20", "20",
-        "0a", "20", "20", "20", "20", "2e", "27", "2f", "2f", "76", "5c", "5c", "27", "2e", "20",
-        "20", "20", "20", "20", "0a", "20", "20", "20", "28", "5f", "2f", "5c", "20", "22", "20",
-        "2f", "5c", "5f", "29", "20", "20", "20", "20", "0a", "20", "20", "20", "20", "20", "20",
-        "20", "27", "2d", "27", "20", "20", "20", "20", "20", "20", "20",
-    ];
-
-    bytes
-        .split(|s| *s == "0a")
-        .map(|s| {
-            std::str::from_utf8(
-                &s.iter()
-                    .map(|c| u8::from_str_radix(c, 16).expect("invalid hexadecimal string"))
-                    .collect::<Vec<u8>>(),
-            )
-            .expect("invalid utf-8 string")
-            .to_string()
-        })
-        .collect::<Vec<String>>()
+    format!(" {COLOUR}{key}{RESET} {value}", key = key, value = value,)
 }
 
 fn get_hostname() -> StringRes {
@@ -159,7 +132,6 @@ fn get_colours() -> (String, String) {
 // Simple system fetch tool written in Rust.
 fn main() {
     let stat = systemstat::System::new();
-    let ascii_art = get_ascii_art();
 
     let mut data_list: Vec<String> = Vec::new();
 
@@ -185,22 +157,9 @@ fn main() {
     data_list.push(colours.0);
     data_list.push(colours.1);
 
-    print_left_to_right(ascii_art, data_list);
-}
-
-// print two vectors of strings side to side
-fn print_left_to_right(left: Vec<String>, right: Vec<String>) {
-    let left_len = left.len();
-    let right_len = right.len();
-    let max_len = left_len.max(right_len);
-
-    for i in 0..max_len {
-        if i < left_len {
-            print!("{}", left[i]);
-        }
-        if i < right_len {
-            print!("{}", right[i]);
-        }
-        println!();
+    // print_left_to_right(ascii_art, data_list);
+    for s in data_list {
+        println!("{}", s);
     }
+    println!();
 }
