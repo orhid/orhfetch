@@ -2,6 +2,13 @@
 name = "orhfetch"
 version = "0.1.0"
 edition = "2021"
+crate-type = ["staticlib"]
+
+[target.aarch64-unknown-linux-musl]
+linker = "rust-lld"
+
+[target.i686-unknown-linux-musl]
+linker = "x86_64-linux-musl-gcc"
 
 [dependencies]
 hex = "0.4"
